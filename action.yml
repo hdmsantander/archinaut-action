@@ -1,0 +1,17 @@
+# action.yml
+name: 'Archinaut action'
+description: 'Executes Archinaut analysis'
+inputs:
+  init date:
+    description: 'Starting date to analyze git log from, format is: yyyy-mm-dd'
+    required: false
+  min cochanges:
+    description: 'Minimum number of cochanges to report in coupling analysis'
+    required: false
+    default: '0'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+    icon: "code"
+    color: "black"
