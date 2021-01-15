@@ -46,12 +46,13 @@ else
     git log --pretty=format:'[%h] %an %ad %s' --date=short --numstat --after=$MIN_DATE > $HOME/git.log
 fi
 
-# Use git log analyzer, min cochanges defaults to 0
+# Check if the git log was generated
 if [[ ! -r  $HOME/git.log ]]; then
     echo "Git log is empty, stopping..."
     exit 1
 else
     
+    # Run the GitLog analyzer, min cochanges defaults to 0
     java -jar $GITLOG_JAR -f $HOME/git.log > $HOME/frecuencies.csv
     java -jar $GITLOG_JAR -f $HOME/git.log -coupling $INPUT_MIN_COCHANGES > $HOME/coupling.csv
     
@@ -63,20 +64,14 @@ else
     
 fi
 
-# Finally we use archinaut
-cat $HOME/scc.csv
-cat $HOME/depends.json
-cat $HOME/git.log
-cat $HOME/frecuencies.csv
-cat $HOME/coupling.csv
+# Execute Archinaut analysis, all files exist if script is still running at this point, this generates archinaut.csv
+java -jar $ARCHINAUT_JAR --headless -c $HOME/coupling.csv -d $HOME/depends.json -f $HOME/frecuencies.csv -s $HOME/scc.csv
 
-# Check for results to see that they're there
-if [[ ! -r $HOME/scc.csv || ! -r $HOME/depends.json || ! -r $HOME/git.log || ! -r $HOME/frecuencies.csv || ! -r $HOME/coupling.csv ]]; then
-    echo "Couldn't read results from analysis to invoke Archinaut, stopping..."
+# Check that archinaut output was generated
+if [[ ! -r archinaut.csv ]]; then
+    echo "Archinaut output couldn't be generated..."
     exit 1
 fi
 
-# Execute Archinaut analysis
-java -jar $ARCHINAUT_JAR --headless -c $HOME/coupling.csv -d $HOME/depends.json -f $HOME/frecuencies.csv -s $HOME/scc.csv
-
+# For now we just cat it to STDOUT
 cat archinaut.csv
