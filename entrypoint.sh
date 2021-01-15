@@ -4,9 +4,10 @@ HOME=/home/archinaut
 SCC_EXECUTABLE=$HOME/scc
 DEPENDS_JAR=$HOME/depends.jar
 GITLOG_JAR=$HOME/gitloganalyzer.jar
+ARCHINAUT_JAR=$HOME/archinaut.jar
 
 # Check for executables
-if [[ ! -r $DEPENDS_JAR || ! -r $GITLOG_JAR || ! -x $SCC_EXECUTABLE ]]; then
+if [[ ! -r $DEPENDS_JAR || ! -r $GITLOG_JAR || ! -x $SCC_EXECUTABLE || -r $ARCHINAUT_JAR ]]; then
     echo "Missing executable(s), stopping..."
     exit 1
 fi
@@ -23,7 +24,7 @@ fi
 
 # Then run depends
 echo "Executing depends analysis"
-java -jar $DEPENDS_JAR -s -p dot -d $HOME java src depends
+java -jar $DEPENDS_JAR -s -p dot -d $HOME java ./src depends
 
 # Check that the depends output is usable
 if [[ ! -r $HOME/depends.json ]]; then
@@ -50,6 +51,7 @@ if [[ ! -r  $HOME/git.log ]]; then
     echo "Git log is empty, stopping..."
     exit 1
 else
+    
     java -jar $GITLOG_JAR -f $HOME/git.log > $HOME/frecuencies.csv
     java -jar $GITLOG_JAR -f $HOME/git.log -coupling $INPUT_MIN_COCHANGES > $HOME/coupling.csv
     
@@ -67,3 +69,14 @@ cat $HOME/depends.json
 cat $HOME/git.log
 cat $HOME/frecuencies.csv
 cat $HOME/coupling.csv
+
+# Check for results to see that they're there
+if [[ ! -r $HOME/scc.csv || ! -r $HOME/depends.json || ! -r $HOME/git.log || ! -r $HOME/frecuencies.csv || ! -r $HOME/coupling.csv ]]; then
+    echo "Couldn't read results from analysis to invoke Archinaut, stopping..."
+    exit 1
+fi
+
+# Execute Archinaut analysis
+java -jar $ARCHINAUT_JAR --headless -c $HOME/coupling.csv -d $HOME/depends.json -f $HOME/frecuencies.csv -s $HOME/scc.csv
+
+cat archinaut.csv

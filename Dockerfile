@@ -28,6 +28,9 @@ RUN unzip -q -j ./depends-0.9.6-package.zip -d $HOME
 # Copy the gitlog analyzer
 COPY bin/gitloganalyzer.jar $HOME
 
+# Copy the Archinaut analyzer
+COPY bin/archinaut.jar $HOME
+
 COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/bin/bash","/entrypoint.sh"]
