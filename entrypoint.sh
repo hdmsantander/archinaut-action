@@ -7,7 +7,7 @@ GITLOG_JAR=$HOME/gitloganalyzer.jar
 ARCHINAUT_JAR=$HOME/archinaut.jar
 
 # Check for executables
-if [[ ! -r $DEPENDS_JAR || ! -r $GITLOG_JAR || ! -x $SCC_EXECUTABLE || -r $ARCHINAUT_JAR ]]; then
+if [[ ! -r $DEPENDS_JAR || ! -r $GITLOG_JAR || ! -x $SCC_EXECUTABLE || ! -r $ARCHINAUT_JAR ]]; then
     echo "Missing executable(s), stopping..."
     exit 1
 fi
