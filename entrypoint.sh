@@ -74,4 +74,6 @@ if [[ ! -r archinaut.csv ]]; then
 fi
 
 # For now we just cat it to STDOUT
+ls -la
 cat archinaut.csv
+cat archinaut.xml
