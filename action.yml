@@ -9,13 +9,13 @@ inputs:
     description: 'Minimum number of cochanges to report in coupling analysis'
     required: false
     default: '0'
-  ssc loc:
+  scc loc:
     description: 'Maximum total lines of code allowed for a single file'
     required: false
-  ssc cloc:
+  scc cloc:
     description: 'Maximum logical lines of code allowed for a single file'
     required: false
-  ssc complexity:
+  scc complexity:
     description: 'Maximum complexity allowed for a single file'
     required: false
   arch revisions:
