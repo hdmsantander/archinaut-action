@@ -9,6 +9,34 @@ inputs:
     description: 'Minimum number of cochanges to report in coupling analysis'
     required: false
     default: '0'
+  ssc loc:
+    description: 'Maximum total lines of code allowed for a single file'
+    required: false
+  ssc cloc:
+    description: 'Maximum logical lines of code allowed for a single file'
+    required: false
+  ssc complexity:
+    description: 'Maximum complexity allowed for a single file'
+    required: false
+  arch revisions:
+    description: 'Maximum number of commits for a single file'
+    required: false
+  arch dependent partners:
+    description: 'Maximum number of files that can depend on a single file'
+    required: false
+  arch depends on partners:
+    description: 'Maximum number of files that a file is allowed to depend from'
+    required: false
+  arch total dependencies:
+    description: 'Maximum sum of the previous two metrics'
+    required: false
+  arch cochange partners:
+    description: 'Maximum number of other simultaneous files to be modified in the same commit to a file'
+    required: false
+  arch churn:
+    description: 'Maximum accumulated lines of code changed during all commits to a file'
+    required: false
+
 runs:
   using: 'docker'
   image: 'Dockerfile'

@@ -68,12 +68,11 @@ fi
 java -jar $ARCHINAUT_JAR --headless -c $HOME/coupling.csv -d $HOME/depends.json -f $HOME/frecuencies.csv -s $HOME/scc.csv
 
 # Check that archinaut output was generated
-if [[ ! -r archinaut.csv ]]; then
+if [[ ! -r archinaut.csv || ! -r archinaut.xml ]]; then
     echo "Archinaut output couldn't be generated..."
     exit 1
 fi
 
-# For now we just cat it to STDOUT
-ls -la
+# For now we just cat them both to STDOUT
 cat archinaut.csv
 cat archinaut.xml
