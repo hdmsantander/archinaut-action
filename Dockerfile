@@ -1,4 +1,3 @@
-# Uses OpenJDK
 FROM openjdk:16-slim
 
 ENV USER archinaut
@@ -29,7 +28,7 @@ RUN unzip -q -j ./depends-0.9.6-package.zip -d $HOME
 COPY bin/gitloganalyzer.jar $HOME
 
 # Copy the Archinaut analyzer
-COPY bin/archinaut.jar $HOME
+COPY bin/archinaut-0.0.2-20210415.215733-1.jar $HOME/archinaut.jar
 
 COPY entrypoint.sh /entrypoint.sh
 
