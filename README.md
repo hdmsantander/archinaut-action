@@ -1,5 +1,5 @@
 # Archinaut Analyzer
-Executes complexity and dependency analysis over a *java* project, generates metrics and generates an XML JUnit report that allows for threshold verification on those metrics.
+Executes complexity and dependency analysis using [Archinaut](https://github.com/hdmsantander/archinaut) over a *java* project, generates metrics and if desired generates an XML JUnit report that allows for a threshold verification on those metrics.
 
 ## Basic inputs
 
@@ -7,12 +7,12 @@ These inputs are *needed* to run the action.
 
 ### configuration file
 
-Path to the configuration file that holds the Archinaut settings in a YAML format. The configuration file is divided by sections, each section being a source of metrics (metric report) that can be integrated by Archinaut. The current **formats** recognized by Archinaut are: 
+Path to the configuration file that holds the [Archinaut](https://github.com/hdmsantander/archinaut) settings in a YAML format. The configuration file is divided by sections, each section being a source of metrics (metric report) that can be integrated by [Archinaut](https://github.com/hdmsantander/archinaut). The current **formats** recognized by [Archinaut](https://github.com/hdmsantander/archinaut) are: 
 
 * [CSV](https://en.wikipedia.org/wiki/Comma-separated_values)
 * [DEPENDS](https://github.com/multilang-depends/depends)
 
-The **file** declared in each section must be an existing file, reachable by Archinaut at runtime.
+The **file** declared in each section must be an existing file, reachable by [Archinaut](https://github.com/hdmsantander/archinaut) at runtime.
 
 The **renaming** section is used to standarize names of the objects inside the metric reports, prefixes and suffixes are removed and then substitutions of characters are performed in the order defined.
 
