@@ -157,11 +157,12 @@ jobs:
         id: archinaut
         uses: hdmsantander/archinaut-action@main
         with:
+          configuration file: archinaut.yml
           init date: '2020-01-01'
           min cochanges: 0
-          scc cloc: 450
-          scc complexity: 70
-          scc loc: 410
+          scc loc: 150
+          scc cloc: 100
+          scc complexity: 15
       
       # Use the generated "archinaut.xml" file to report the results in merge requests if there's
       # one associated with this commit
