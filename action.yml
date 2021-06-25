@@ -1,41 +1,18 @@
 # action.yml
 name: 'Archinaut action'
-description: 'Executes Archinaut analysis'
+description: 'Executes Archinaut metric analysis given a configuration file provided and a series of metrics reports available at runtime.'
 inputs:
+  configuration file:
+    description: 'Path to the configuration file that holds the Archinaut settings in a YAML format.'
+    required: true
+    default: 'archinaut.yml'
   init date:
-    description: 'Starting date to analyze git log from, format is: yyyy-mm-dd'
+    description: 'Starting date to analyze git log from, format is: yyyy-mm-dd.'
     required: false
   min cochanges:
-    description: 'Minimum number of cochanges to report in coupling analysis'
+    description: 'Minimum number of cochanges to report in coupling analysis.'
     required: false
     default: '0'
-  scc loc:
-    description: 'Maximum total lines of code allowed for a single file'
-    required: false
-  scc cloc:
-    description: 'Maximum logical lines of code allowed for a single file'
-    required: false
-  scc complexity:
-    description: 'Maximum complexity allowed for a single file'
-    required: false
-  arch revisions:
-    description: 'Maximum number of commits for a single file'
-    required: false
-  arch dependent partners:
-    description: 'Maximum number of files that can depend on a single file'
-    required: false
-  arch depends on partners:
-    description: 'Maximum number of files that a file is allowed to depend from'
-    required: false
-  arch total dependencies:
-    description: 'Maximum sum of the previous two metrics'
-    required: false
-  arch cochange partners:
-    description: 'Maximum number of other simultaneous files to be modified in the same commit to a file'
-    required: false
-  arch churn:
-    description: 'Maximum accumulated lines of code changed during all commits to a file'
-    required: false
 
 runs:
   using: 'docker'

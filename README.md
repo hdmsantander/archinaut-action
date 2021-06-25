@@ -3,6 +3,118 @@ Executes complexity and dependency analysis over a *java* project, generates met
 
 ## Basic inputs
 
+These inputs are *needed* to run the action.
+
+### configuration file
+
+Path to the configuration file that holds the Archinaut settings in a YAML format. The configuration file is divided by sections, each section being a source of metrics (metric report) that can be integrated by Archinaut. The current **formats** recognized by Archinaut are: 
+
+* [CSV](https://en.wikipedia.org/wiki/Comma-separated_values)
+* [DEPENDS](https://github.com/multilang-depends/depends)
+
+The **file** declared in each section must be an existing file, reachable by Archinaut at runtime.
+
+The **renaming** section is used to standarize names of the objects inside the metric reports, prefixes and suffixes are removed and then substitutions of characters are performed in the order defined.
+
+The **metrics** section is used to declare the numeric (integer) metrics that are to be loaded from the metric reports. The one marked with the boolean *filename* serves as the identifier for the filename in the report, there can only be one *filename* flag specified. The metrics can be renamed if a **rename** is specified.
+
+The metric report provided by [depends](https://github.com/multilang-depends/depends) is non-optional and its generated with the following [depends](https://github.com/multilang-depends/depends) options: `java -jar $DEPENDS_JAR -s -p dot -d $HOME java ./src depends`
+
+An example of the *archinaut.yml* file can be seen here:
+
+_archinaut.yml_
+```YAML
+---
+file: 'scc.csv'
+format: 'CSV'
+renaming:
+  pathSeparator: '/'
+  prefix: 'src/main/java/'
+  suffix: ''
+  substitutions:
+    - order: 1
+      substitute: '.'
+      with: '_'
+    - order: 2
+      substitute: '/'
+      with: '_'
+metrics:
+  - name: 'Location'
+    filename: true
+  - name: 'Lines'
+    rename: 'SCC_LOC'
+  - name: 'Code'
+    rename: 'SCC_CLOC'
+  - name: 'Complexity'
+    rename: 'SCC_COMPLEXITY'
+---
+file: 'frecuencies.csv'
+format: 'CSV'
+renaming:
+  pathSeparator: '/'
+  prefix: 'src/main/java/'
+  suffix: ''
+  substitutions:
+    - order: 1
+      substitute: '.'
+      with: '_'
+    - order: 2
+      substitute: '/'
+      with: '_'
+metrics:
+  - name: 'entity'
+    filename: true
+  - name: 'n-revs'
+    rename: 'ARCH_REVISIONS'
+  - name: 'bugs'
+    rename: 'BUG_COMMITS'
+  - name: 'added'
+    rename: 'LINES_ADDED'
+  - name: 'removed'
+    rename: 'LINES_REMOVED'
+---
+file: 'coupling.csv'
+format: 'CSV'
+renaming:
+  pathSeparator: '/'
+  prefix: 'src/main/java/'
+  suffix: ''
+  substitutions:
+    - order: 1
+      substitute: '.'
+      with: '_'
+    - order: 2
+      substitute: '/'
+      with: '_'
+metrics:
+  - name: 'entity'
+    filename: true
+  - name: 'cochanges'
+    rename: 'COCHANGES'
+---
+file: 'depends.json'
+format: 'DEPENDS'
+renaming:
+  pathSeparator: '.'
+  prefix: 'main.java.'
+  suffix: ''
+  substitutions:
+    - order: 1
+      substitute: '.'
+      with: '_'
+metrics:
+  - name: 'Call'
+  - name: 'Import'
+  - name: 'Return'
+  - name: 'Use'
+  - name: 'Parameter'
+  - name: 'Contain'
+  - name: 'Implement'
+  - name: 'Create'
+  - name: 'Extend'
+
+```
+
 ### init date
 
 Starting date to analyze the repositorys git log, format is: yyyy-mm-dd. Defaults to last month.
@@ -11,41 +123,24 @@ Starting date to analyze the repositorys git log, format is: yyyy-mm-dd. Default
 
 Minimum number of cochanges to report in coupling analysis. Defaults to zero.
 
+
 ## Threshold inputs
-The following inputs can be set with a numerical value to generate a JUnit XML report that evaluates the supplied thresholds.
 
-### scc loc
-Maximum total lines of code allowed for a single file
+These inputs are *optional* and serve to generate a JUnit format XML report with the threshold violations.
 
-### scc cloc
-Maximum logical lines of code allowed for a single file
+Given any **metrics** declared in the configuration file, an input can be declared in the action specification, that will work as a threshold to generate a JUnit style XML report with the violations of said thresholds. For example, in the **archinaut.yml** file we specified the metrics *SCC_LOC*, *SCC_CLOC* and *SCC_COMPLEXITY*, so in the **with** section of the action declaration in the workflow we can declare the following inputs:
 
-### scc complexity
-Maximum complexity allowed for a single file
+* scc loc: 150
+* scc cloc: 100
+* scc complexity: 15
 
-### arch revisions
-Maximum number of commits for a single file
+These inputs will be parsed and used at runtime to generate a JUnit style XML report with the violations detected. 
 
-### arch dependent partners
-Maximum number of files that can depend on a single file
-
-### arch depends on partners
-Maximum number of files that a file is allowed to depend from
-
-### arch total dependencies
-Maximum sum of the previous two metrics
-
-### arch cochange partners
-Maximum number of other simultaneous files to be modified in the same commit to a file
-
-### arch churn
-Maximum accumulated lines of code changed during all commits to a file
-
-## Example usage
+## Example usage in a workflow
 
 _.github/workflows/main.yml_
 
-```
+```YAML
 on: [push]
 jobs:
   archinaut-analysis:
@@ -67,12 +162,6 @@ jobs:
           scc cloc: 450
           scc complexity: 70
           scc loc: 410
-          arch revisions: 30
-          arch dependent partners: 50
-          arch depends on partners: 70
-          arch total dependencies: 70
-          arch cochange partners: 20
-          arch churn: 500
       
       # Use the generated "archinaut.xml" file to report the results in merge requests if there's
       # one associated with this commit

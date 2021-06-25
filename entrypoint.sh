@@ -64,8 +64,14 @@ else
     
 fi
 
+ # Check that the archinaut configuration file is present
+if [[ ! -r $INPUT_CONFIGURATION_FILE ]]; then
+    echo "Couldn't reach archinaut configuration file"
+    exit 1
+fi
+
 # Execute Archinaut analysis, all files exist if script is still running at this point, this generates archinaut.csv
-java -jar $ARCHINAUT_JAR --headless -c $HOME/coupling.csv -d $HOME/depends.json -f $HOME/frecuencies.csv -s $HOME/scc.csv
+java -jar $ARCHINAUT_JAR --configuration $INPUT_CONFIGURATION_FILE
 
 # Check that archinaut output was generated
 if [[ ! -r archinaut.csv || ! -r archinaut.xml ]]; then
