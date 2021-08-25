@@ -53,18 +53,18 @@ if [[ ! -r  git.log ]]; then
 else
     
     # Run the GitLog analyzer, min cochanges defaults to 0
-    java -jar $GITLOG_JAR -f git.log > frecuencies.csv
+    java -jar $GITLOG_JAR -f git.log > frequencies.csv
     java -jar $GITLOG_JAR -f git.log -coupling $INPUT_MIN_COCHANGES > coupling.csv
     
     # Check if the git log analyzer output is usable and it was generated
-    if [[ ! -r frecuencies.csv || ! -r coupling.csv ]]; then
+    if [[ ! -r frequencies.csv || ! -r coupling.csv ]]; then
         echo "Couldn't generate git log analyzer output"
         exit 1
     fi
     
 fi
 
- # Check that the archinaut configuration file is present
+# Check that the archinaut configuration file is present
 if [[ ! -r $INPUT_CONFIGURATION_FILE ]]; then
     echo "Couldn't reach archinaut configuration file"
     exit 1
