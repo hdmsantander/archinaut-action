@@ -48,7 +48,7 @@ metrics:
   - name: 'Complexity'
     rename: 'SCC_COMPLEXITY'
 ---
-file: 'frecuencies.csv'
+file: 'frequencies.csv'
 format: 'CSV'
 renaming:
   pathSeparator: '/'
