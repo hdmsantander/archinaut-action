@@ -1,28 +1,17 @@
-# Archinaut Analyzer
-Executes complexity and dependency analysis using [Archinaut](https://github.com/hdmsantander/archinaut) over a *java* project, generates metrics and if desired generates an XML JUnit report that allows for a threshold verification on those metrics.
+# Archinaut Action
+
+Executes complexity and dependency analysis using [Archinaut](https://github.com/hdmsantander/archinaut) on a _java_ project. It generates metrics and if desired generates an XML JUnit report that allows for a threshold verification on those metrics.
 
 ## Basic inputs
 
-These inputs are *needed* to run the action.
+These inputs are _needed_ to run the action.
 
 ### configuration file
 
-Path to the configuration file that holds the [Archinaut](https://github.com/hdmsantander/archinaut) settings in a YAML format. The configuration file is divided by sections, each section being a source of metrics (metric report) that can be integrated by [Archinaut](https://github.com/hdmsantander/archinaut). The current **formats** recognized by [Archinaut](https://github.com/hdmsantander/archinaut) are: 
-
-* [CSV](https://en.wikipedia.org/wiki/Comma-separated_values)
-* [DEPENDS](https://github.com/multilang-depends/depends)
-
-The **file** declared in each section must be an existing file, reachable by [Archinaut](https://github.com/hdmsantander/archinaut) at runtime.
-
-The **renaming** section is used to standarize names of the objects inside the metric reports, prefixes and suffixes are removed and then substitutions of characters are performed in the order defined.
-
-The **metrics** section is used to declare the numeric (integer) metrics that are to be loaded from the metric reports. The one marked with the boolean *filename* serves as the identifier for the filename in the report, there can only be one *filename* flag specified. The metrics can be renamed if a **rename** is specified.
-
-The metric report provided by [depends](https://github.com/multilang-depends/depends) is non-optional and its generated with the following [depends](https://github.com/multilang-depends/depends) options: `java -jar $DEPENDS_JAR -s -p dot -d $HOME java ./src depends`
-
-An example of the *archinaut.yml* file can be seen here:
+A configuration file with the following format must exist in the root of the project in which the action will run:
 
 _archinaut.yml_
+
 ```YAML
 ---
 file: 'scc.csv'
@@ -115,6 +104,8 @@ metrics:
 
 ```
 
+This file is based on the configuration file that [Archinaut](https://github.com/hdmsantander/archinaut) uses to generate the metrics of a project. More information on the file and its settings can be found [here](https://github.com/hdmsantander/archinaut#configuration-file).
+
 ### init date
 
 Starting date to analyze the repositorys git log, format is: yyyy-mm-dd. Defaults to last month.
@@ -123,20 +114,38 @@ Starting date to analyze the repositorys git log, format is: yyyy-mm-dd. Default
 
 Minimum number of cochanges to report in coupling analysis. Defaults to zero.
 
-
 ## Threshold inputs
 
-These inputs are *optional* and serve to generate a JUnit format XML report with the threshold violations.
+These inputs are _optional_ and serve to generate a JUnit format XML report with the threshold violations.
 
-Given any **metrics** declared in the configuration file, an input can be declared in the action specification, that will work as a threshold to generate a JUnit style XML report with the violations of said thresholds. For example, in the **archinaut.yml** file we specified the metrics *SCC_LOC*, *SCC_CLOC* and *SCC_COMPLEXITY*, so in the **with** section of the action declaration in the workflow we can declare the following inputs:
+Given any **metrics** declared in the configuration file, an input can be declared in the action specification, that will work as a threshold to generate a JUnit style XML report with the violations of said thresholds. For example, in the **archinaut.yml** file we specified the metrics _SCC_LOC_, _SCC_CLOC_ and _SCC_COMPLEXITY_, so in the **with** section of the action declaration in the workflow we can declare the following inputs:
 
-* scc loc: 150
-* scc cloc: 100
-* scc complexity: 15
+- scc loc: 150
+- scc cloc: 100
+- scc complexity: 15
 
-These inputs will be parsed and used at runtime to generate a JUnit style XML report with the violations detected. 
+These inputs will be parsed and used at runtime to generate a JUnit style XML report with the violations detected.
 
-## Example usage in a workflow
+## Outputs
+
+The action generates two files as outputs:
+
+- `archinaut.csv` This file is a CSV with the metrics found in the project for each file of the project.
+- `archinaut.xml` This file is a JUnit style XML report containing the metric threshold violations, in case there are any.
+
+Both files can be interacted with and are available at the root of the execution environment of the action.
+
+## Example of usage in a workflow
+
+In order to use the action in a workflow, there must be a step where the action is used. In the following workflow there are five steps:
+
+1. `Checkout` Performs the checkout into the repository to use the contents of the project for the Archinaut analysis.
+2. `Archinaut analysis` Performs the Archinaut analysis in the project.
+3. `Generate report using Archinaut XML output` Analyzes the XML Junit report produced by Archinaut to evaluate if there were any threshold violations. This uses the [action](https://github.com/EnricoMi/publish-unit-test-result-action) provided by [EnricoMi](https://github.com/EnricoMi).
+4. `Upload CSV as artifact` Uploads the CSV report generated by Archinaut as a workflow artifact.
+5. `Upload XML as artifact` Uploads the XML report generated by Archinaut as a workflow artifact.
+
+The sample workflow is as follows:
 
 _.github/workflows/main.yml_
 
@@ -151,7 +160,7 @@ jobs:
       # Check out the repository
       - name: Checkout
         uses: actions/checkout@v2.3.4
-      
+
       # Use the Archinaut action
       - name: Archinaut analysis
         id: archinaut
@@ -162,8 +171,8 @@ jobs:
           min cochanges: 0
           scc loc: 150
           scc cloc: 100
-          scc complexity: 15
-      
+          scc complexity: 19
+
       # Use the generated "archinaut.xml" file to report the results in merge requests if there's
       # one associated with this commit
       - name: Generate report using Archinaut XML output
@@ -174,4 +183,28 @@ jobs:
          report_individual_runs: true
          github_token: ${{ secrets.GITHUB_TOKEN }}
          files: archinaut.xml
+
+      # Store the Archinaut results artifact
+      - name: Upload CSV as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: archinaut-csv
+          path: archinaut.csv
+
+      # Store the Archinaut JUnit artifact
+      - name: Upload XML as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: archinaut-junit
+          path: archinaut.xml
 ```
+
+And this workflow results in a report that could look like:
+
+![JUnit XML report](.img/1.png)
+
+In which some entities failed the [threshold inputs](https://github.com/hdmsantander/archinaut-action#threshold-inputs) declared in the configuration of the action, as they scored over **19** for the _SSC_COMPLEXITY_ metric.
+
+With the following artifacts being created:
+
+![Workflow artifacts created](.img/2.png)
